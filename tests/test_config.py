@@ -84,6 +84,24 @@ class TestDefaults:
             config.get_settings()
 
 
+    @pytest.mark.parametrize(
+        ("first", "second"),
+        [("Staging", "staging"), (" staging ", "staging")],
+    )
+    def test_normalized_environment_name_collision_is_rejected(
+        self, monkeypatch, first, second
+    ):
+        registry = {first: {"project": "demo-a"}, second: {"project": "demo-b"}}
+        monkeypatch.setenv("PLATFORM_MCP_ENVIRONMENTS", json.dumps(registry))
+        clear_caches()
+
+        with pytest.raises(RuntimeError) as excinfo:
+            config.get_settings()
+
+        message = str(excinfo.value)
+        assert f"{first!r} and {second!r}" in message
+        assert "both become the environment name 'staging'" in message
+
 class TestConfigFile:
     def _write(self, monkeypatch, tmp_path, body: str):
         path = tmp_path / "config.toml"
