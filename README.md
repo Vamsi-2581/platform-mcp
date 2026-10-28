@@ -215,6 +215,10 @@ setup keeps running unchanged and a one-off override needs no edit:
 | `billing_export_table` | Fully-qualified BigQuery billing export table, required only for `get_cost_breakdown` (e.g. `YOUR_PROJECT_ID.billing.gcp_billing_export_v1_XXXXXX`). |
 | `aliases` | Extra names the agent may use for this environment. |
 
+Environment names are stripped and matched case-insensitively. If two registry keys
+normalize to the same name, startup raises an error naming both keys instead of
+silently choosing one.
+
 A bare string value is shorthand for `{"project": "..."}`. As JSON inside
 `.mcp.json` the quotes must be escaped; unescaped it reads:
 
