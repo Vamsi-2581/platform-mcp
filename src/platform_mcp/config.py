@@ -122,10 +122,17 @@ def _parse_registry(raw: str) -> tuple[Environment, ...]:
     global_billing = os.environ.get("BILLING_EXPORT_TABLE", "").strip()
 
     environments = []
+    normalized_names = {}
     for name, spec in parsed.items():
         key = str(name).strip().lower()
         if not key:
             continue
+        if key in normalized_names:
+            raise RuntimeError(
+                f"PLATFORM_MCP_ENVIRONMENTS: {normalized_names[key]!r} and {name!r} "
+                f"both become the environment name {key!r}. Rename one of them."
+            )
+        normalized_names[key] = name
         if isinstance(spec, str):
             spec = {"project": spec}
         if not isinstance(spec, dict):
